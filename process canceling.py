@@ -227,7 +227,12 @@ def ordering_bid_order() :
 
 
 while 1>0 :
-    
+    OrderList = order()
+    cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1, ask_order_qnt ,bid_order_qnt)
+    ordercanceling(cancelList)
+    print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
+
+
     ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks , ask_order_qnt ,bid_order_qnt   = price_order()
     if ask_order_prices1 > 1 :
         ordering_ask_order()
@@ -236,9 +241,3 @@ while 1>0 :
     if bid_order_prices1 < 1 :
         ordering_bid_order()
     else : print("nemisarfe dadash")
-
-    OrderList = order()
-    cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1, ask_order_qnt ,bid_order_qnt)
-    ordercanceling(cancelList)
-    print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
-

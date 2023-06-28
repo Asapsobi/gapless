@@ -92,7 +92,7 @@ def IsCancel(OrderList,bid_order_prices,ask_order_prices , ask_order_qnt ,bid_or
     for order in OrderList :
         if order[2] == bid_order_prices or ask_order_prices :
             continue
-        elif  order [0] == ask_order_qnt or bid_order_qnt :
+        elif  order [1] == ask_order_qnt or bid_order_qnt :
             continue
         else : 
             print("order" , order[0] , "be qeymate" ,order[2] , "chon barabar" , bid_order_prices , ask_order_prices , "nist bayad delete she"   )

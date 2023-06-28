@@ -36,11 +36,17 @@ def price_order () :
    
     average_asks= sum (ask_order_prices[:5])/ 5
 
+    ask_order_qnt = [round(float(ask[1]), 4) for ask in asks ]
+    bid_order_qnt = [round(float(bid[1]), 4) for bid in bids]
 
-    return ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks 
 
 
-ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks = price_order()
+
+
+    return ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks , ask_order_qnt ,bid_order_qnt
+
+
+ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks, ask_order_qnt ,bid_order_qnt = price_order()
 
 
 # Endpoint parameters
@@ -81,20 +87,20 @@ def order() :
 OrderList = order()
 
 
-def IsCancel(OrderList,bid_order_prices,ask_order_prices) :
+def IsCancel(OrderList,bid_order_prices,ask_order_prices , ask_order_qnt ,bid_order_qnt) :
     cancelList=[]
     for order in OrderList :
-        if order[2] == bid_order_prices :
+        if order[2] == bid_order_prices or ask_order_prices :
             continue
-        elif order[2] == ask_order_prices :
+        elif  order [0] == ask_order_qnt or bid_order_qnt :
             continue
-        else :
+        else : 
             print("order" , order[0] , "be qeymate" ,order[2] , "chon barabar" , bid_order_prices , ask_order_prices , "nist bayad delete she"   )
             cancelList.append(order[0])
 
     return (cancelList)
 
-cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1)
+cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1, ask_order_qnt ,bid_order_qnt)
 
 
 def del_orders(order_id):
@@ -183,9 +189,10 @@ def ordering_bid_order() :
     print(response.json())
 
 
+
 while 1>0 :
     
-    ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks = price_order()
+    ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks , ask_order_qnt ,bid_order_qnt   = price_order()
     if ask_order_prices1 > 1 :
         ordering_ask_order()
     else : print("nemisarfe dadash")
@@ -195,7 +202,7 @@ while 1>0 :
     else : print("nemisarfe dadash")
 
     OrderList = order()
-    cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1)
+    cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1, ask_order_qnt ,bid_order_qnt)
     ordercanceling(cancelList)
     print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
     time.sleep(1)

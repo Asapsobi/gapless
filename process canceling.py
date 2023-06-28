@@ -133,6 +133,38 @@ def ordercanceling(cancelList) :
         order_id = order 
         del_orders(order_id)
 
+def free_balance():
+    # Endpoint parameters
+    params = {
+        'timestamp': int(time.time() * 1000),
+        'recvWindow': 60000
+    }
+
+    # Build totalParams as the query string concatenated with the request body
+    query_string = urllib.parse.urlencode(params)
+
+    # Hash the totalParams using HMAC SHA256
+    signature = hmac.new(secret_key, query_string.encode('utf-8'), hashlib.sha256).hexdigest()
+
+    # Send a request to the signed endpoint
+    url = f'https://api.mexc.com/api/v3/account?{query_string}&signature={signature}'
+    headers = {'X-MEXC-APIKEY': api_key}
+
+    response = requests.get(url, headers=headers)
+    response_json = response.json()
+
+    balances = response_json['balances']
+    assets = [{'asset': balance['asset'], 'free': balance['free']} for balance in balances]
+    assets = {balance['asset']: float(balance['free']) for balance in balances}
+
+    return assets
+freee_balance = free_balance()
+
+usdc_value = freee_balance['USDC']
+usdd_value = freee_balance['USDD']
+print("USDC value:", usdc_value)
+print("USDT value:", usdd_value)
+
 
 def ordering_ask_order( ) :
 
@@ -142,7 +174,7 @@ def ordering_ask_order( ) :
         'symbol': 'USDDUSDC',
         'side': 'SELL',
         'type': 'LIMIT',
-        'quantity': 10,
+        'quantity': usdd_value,
         'price': ask_order_prices1,
         'recvWindow': 60000,
         'timestamp': int(time.time() * 1000)
@@ -165,11 +197,12 @@ def ordering_bid_order() :
 
     endpoint = 'https://api.mexc.com/api/v3/order'
     print (bid_order_prices1)
+    usdc_value=70
     params = {
         'symbol': 'USDDUSDC',
         'side': 'BUY',
         'type': 'LIMIT',
-        'quantity': 10,
+        'quantity': usdc_value,
         'price': bid_order_prices1,
         'recvWindow': 60000,
         'timestamp': int(time.time() * 1000)
@@ -205,5 +238,4 @@ while 1>0 :
     cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1, ask_order_qnt ,bid_order_qnt)
     ordercanceling(cancelList)
     print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
-    time.sleep(1)
 

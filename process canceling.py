@@ -197,7 +197,6 @@ def ordering_bid_order() :
 
     endpoint = 'https://api.mexc.com/api/v3/order'
     print (bid_order_prices1)
-    usdc_value=70
     params = {
         'symbol': 'USDDUSDC',
         'side': 'BUY',

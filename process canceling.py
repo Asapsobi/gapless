@@ -90,18 +90,22 @@ OrderList = order()
 def IsCancel(OrderList,bid_order_prices1,ask_order_prices1 , ask_order_qnt ,bid_order_qnt) :
     cancelList=[]
     for order in OrderList :
-        if order[2] == bid_order_prices1 or ask_order_prices1 :
+        print (order)
+        if order[2] == bid_order_prices1  :
             continue
-        elif  order [1] == ask_order_qnt or bid_order_qnt :
+        if order[2] == ask_order_prices1  :
+            continue   
+        if  order [1] == ask_order_qnt  :
             continue
+        if  order [1] ==  bid_order_qnt :
+            continue            
         else : 
             print("order" , order[0] , "be qeymate" ,order[2] , "chon barabar" , bid_order_prices1 , ask_order_prices1 , "nist bayad delete she"   )
             cancelList.append(order[0])
 
     return (cancelList)
-
 cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1, ask_order_qnt ,bid_order_qnt)
-
+print(cancelList)
 
 def del_orders(order_id):
     params = {

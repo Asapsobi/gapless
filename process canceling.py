@@ -89,7 +89,7 @@ def IsCancel(OrderList,bid_order_prices,ask_order_prices) :
         elif order[2] == ask_order_prices :
             continue
         else :
-            print("order" , order[0] , "be qeymate" ,order[1] , "chon barabar" , bid_order_prices , ask_order_prices , "nist bayad delete she"   )
+            print("order" , order[0] , "be qeymate" ,order[2] , "chon barabar" , bid_order_prices , ask_order_prices , "nist bayad delete she"   )
             cancelList.append(order[0])
 
     return (cancelList)
@@ -198,4 +198,5 @@ while 1>0 :
     cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1)
     ordercanceling(cancelList)
     print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
+    time.sleep(1)
 

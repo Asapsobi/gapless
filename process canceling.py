@@ -13,7 +13,7 @@ avr_asks =[0,0,0,0,0]
 avr_bids =[0,0,0,0,0]
 def price_order () :
     url = "https://api.mexc.com/api/v3/depth"
-    params = {"symbol": "USDDUSDC"}
+    params = {"symbol": "MXUSDC"}
     response = requests.get(url, params=params)
 
     # Extracting the bids list from the response JSON
@@ -36,23 +36,17 @@ def price_order () :
    
     average_asks= sum (ask_order_prices[:5])/ 5
 
-    ask_order_qnt = [round(float(ask[1]), 4) for ask in asks ]
-    bid_order_qnt = [round(float(bid[1]), 4) for bid in bids]
+
+    return ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks 
 
 
-
-
-
-    return ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks , ask_order_qnt ,bid_order_qnt
-
-
-ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks, ask_order_qnt ,bid_order_qnt = price_order()
+ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks = price_order()
 
 
 # Endpoint parameters
 def order() :
     params = {
-        'symbol': 'USDDUSDC',
+        'symbol': 'MXUSDC',
         'timestamp': int(time.time() * 1000),
         'recvWindow': 60000
     }
@@ -87,29 +81,25 @@ def order() :
 OrderList = order()
 
 
-def IsCancel(OrderList,bid_order_prices1,ask_order_prices1 , ask_order_qnt ,bid_order_qnt) :
+def IsCancel(OrderList,bid_order_prices,ask_order_prices) :
     cancelList=[]
     for order in OrderList :
-        print (order)
-        if order[2] == bid_order_prices1  :
+        if order[2] == bid_order_prices :
             continue
-        if order[2] == ask_order_prices1  :
-            continue   
-        if  order [1] == ask_order_qnt  :
+        elif order[2] == ask_order_prices :
             continue
-        if  order [1] ==  bid_order_qnt :
-            continue            
-        else : 
-            print("order" , order[0] , "be qeymate" ,order[2] , "chon barabar" , bid_order_prices1 , ask_order_prices1 , "nist bayad delete she"   )
+        else :
+            print("order" , order[0] , "be qeymate" ,order[1] , "chon barabar" , bid_order_prices , ask_order_prices , "nist bayad delete she"   )
             cancelList.append(order[0])
 
     return (cancelList)
-cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1, ask_order_qnt ,bid_order_qnt)
-print(cancelList)
+
+cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1)
+
 
 def del_orders(order_id):
     params = {
-        'symbol': 'USDDUSDC',
+        'symbol': 'MXUSDC',
         'orderId': order_id,
         'timestamp': int(time.time() * 1000),
         'recvWindow': 60000
@@ -137,48 +127,16 @@ def ordercanceling(cancelList) :
         order_id = order 
         del_orders(order_id)
 
-def free_balance():
-    # Endpoint parameters
-    params = {
-        'timestamp': int(time.time() * 1000),
-        'recvWindow': 60000
-    }
-
-    # Build totalParams as the query string concatenated with the request body
-    query_string = urllib.parse.urlencode(params)
-
-    # Hash the totalParams using HMAC SHA256
-    signature = hmac.new(secret_key, query_string.encode('utf-8'), hashlib.sha256).hexdigest()
-
-    # Send a request to the signed endpoint
-    url = f'https://api.mexc.com/api/v3/account?{query_string}&signature={signature}'
-    headers = {'X-MEXC-APIKEY': api_key}
-
-    response = requests.get(url, headers=headers)
-    response_json = response.json()
-
-    balances = response_json['balances']
-    assets = [{'asset': balance['asset'], 'free': balance['free']} for balance in balances]
-    assets = {balance['asset']: float(balance['free']) for balance in balances}
-
-    return assets
-freee_balance = free_balance()
-
-usdc_value = freee_balance['USDC']
-usdd_value = freee_balance['USDD']
-print("USDC value:", usdc_value)
-print("USDT value:", usdd_value)
-
 
 def ordering_ask_order( ) :
 
     endpoint = 'https://api.mexc.com/api/v3/order'
 
     params = {
-        'symbol': 'USDDUSDC',
+        'symbol': 'MXUSDC',
         'side': 'SELL',
         'type': 'LIMIT',
-        'quantity': usdd_value,
+        'quantity': 5,
         'price': ask_order_prices1,
         'recvWindow': 60000,
         'timestamp': int(time.time() * 1000)
@@ -202,10 +160,10 @@ def ordering_bid_order() :
     endpoint = 'https://api.mexc.com/api/v3/order'
     print (bid_order_prices1)
     params = {
-        'symbol': 'USDDUSDC',
+        'symbol': 'MXUSDC',
         'side': 'BUY',
         'type': 'LIMIT',
-        'quantity': usdc_value,
+        'quantity': 5,
         'price': bid_order_prices1,
         'recvWindow': 60000,
         'timestamp': int(time.time() * 1000)
@@ -225,19 +183,23 @@ def ordering_bid_order() :
     print(response.json())
 
 
-
 while 1>0 :
-    OrderList = order()
-    cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1, ask_order_qnt ,bid_order_qnt)
-    ordercanceling(cancelList)
-    print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
+    
+    ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks = price_order()
+    if ask_order_prices1 - bid_order_prices1 >0.005 :
+        if ask_order_prices1 > (average_asks*0.998):
+            ordering_ask_order()
+            print (ask_order_prices1,">", average_asks*0.998)
+        else :continue
+
+        if bid_order_prices1 < (average_bids*1.002):
+            ordering_bid_order()
+            print (bid_order_prices1 ,"<", average_bids*1.002)
+        else :continue
 
 
-    ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks , ask_order_qnt ,bid_order_qnt   = price_order()
-    if ask_order_prices1 > 1 :
-        ordering_ask_order()
-    else : print("nemisarfe dadash")
-
-    if bid_order_prices1 < 1 :
-        ordering_bid_order()
+        OrderList = order()
+        cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1)
+        ordercanceling(cancelList)
+        print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
     else : print("nemisarfe dadash")

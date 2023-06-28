@@ -13,7 +13,7 @@ avr_asks =[0,0,0,0,0]
 avr_bids =[0,0,0,0,0]
 def price_order () :
     url = "https://api.mexc.com/api/v3/depth"
-    params = {"symbol": "MXUSDC"}
+    params = {"symbol": "USDDUSDC"}
     response = requests.get(url, params=params)
 
     # Extracting the bids list from the response JSON
@@ -46,7 +46,7 @@ ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks = price_order
 # Endpoint parameters
 def order() :
     params = {
-        'symbol': 'MXUSDC',
+        'symbol': 'USDDUSDC',
         'timestamp': int(time.time() * 1000),
         'recvWindow': 60000
     }
@@ -99,7 +99,7 @@ cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1)
 
 def del_orders(order_id):
     params = {
-        'symbol': 'MXUSDC',
+        'symbol': 'USDDUSDC',
         'orderId': order_id,
         'timestamp': int(time.time() * 1000),
         'recvWindow': 60000
@@ -133,10 +133,10 @@ def ordering_ask_order( ) :
     endpoint = 'https://api.mexc.com/api/v3/order'
 
     params = {
-        'symbol': 'MXUSDC',
+        'symbol': 'USDDUSDC',
         'side': 'SELL',
         'type': 'LIMIT',
-        'quantity': 5,
+        'quantity': 10,
         'price': ask_order_prices1,
         'recvWindow': 60000,
         'timestamp': int(time.time() * 1000)
@@ -160,10 +160,10 @@ def ordering_bid_order() :
     endpoint = 'https://api.mexc.com/api/v3/order'
     print (bid_order_prices1)
     params = {
-        'symbol': 'MXUSDC',
+        'symbol': 'USDDUSDC',
         'side': 'BUY',
         'type': 'LIMIT',
-        'quantity': 5,
+        'quantity': 10,
         'price': bid_order_prices1,
         'recvWindow': 60000,
         'timestamp': int(time.time() * 1000)
@@ -186,20 +186,16 @@ def ordering_bid_order() :
 while 1>0 :
     
     ask_order_prices1 ,bid_order_prices1 , average_bids , average_asks = price_order()
-    if ask_order_prices1 - bid_order_prices1 >0.005 :
-        if ask_order_prices1 > (average_asks*0.998):
-            ordering_ask_order()
-            print (ask_order_prices1,">", average_asks*0.998)
-        else :continue
-
-        if bid_order_prices1 < (average_bids*1.002):
-            ordering_bid_order()
-            print (bid_order_prices1 ,"<", average_bids*1.002)
-        else :continue
-
-
-        OrderList = order()
-        cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1)
-        ordercanceling(cancelList)
-        print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
+    if ask_order_prices1 > 1 :
+        ordering_ask_order()
     else : print("nemisarfe dadash")
+
+    if bid_order_prices1 < 1 :
+        ordering_bid_order()
+    else : print("nemisarfe dadash")
+
+    OrderList = order()
+    cancelList=IsCancel(OrderList,bid_order_prices1,ask_order_prices1)
+    ordercanceling(cancelList)
+    print("i orderd in" , ask_order_prices1 ,bid_order_prices1 , "\n my orders are:" , OrderList , "\n my cancel iste are" , cancelList )
+
